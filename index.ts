@@ -15,12 +15,32 @@ export const redis = new Redis(process.env.REDIS_ENDPOINT as string);
 
 const server = Bun.serve<{ email: string }>({
 	fetch(req, server) {
+		// Add CORS headers
+		if (req.method === "OPTIONS") {
+			return new Response(null, {
+				headers: {
+					"Access-Control-Allow-Origin": "*",
+					"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+					"Access-Control-Allow-Headers": "Content-Type, Authorization",
+				},
+			});
+		}
+
 		const cookies = req.headers.get("cookie");
 		const { email } = getUserFromCookies(cookies);
-		const success = server.upgrade(req, { data: { email } });
+		const success = server.upgrade(req, {
+			data: { email },
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+			},
+		});
 		if (success) return undefined;
 
-		return new Response("Hello world");
+		return new Response("Hello world", {
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+			},
+		});
 	},
 	websocket: {
 		open(ws) {
