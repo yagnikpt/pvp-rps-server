@@ -23,7 +23,7 @@ const server = Bun.serve<{ email: string }>({
 					"Access-Control-Allow-Origin": "pvp-rps.vercel.app",
 					"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 					"Access-Control-Allow-Headers": "Content-Type, Authorization",
-					"Access-Control-Allow-Credntials": "true",
+					"Access-Control-Allow-Credentials": "true",
 				},
 			});
 		}
