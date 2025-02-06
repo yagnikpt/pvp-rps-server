@@ -14,6 +14,7 @@ export const redis = new Redis(process.env.REDIS_ENDPOINT as string);
 // const room = await redis.call("JSON.GET", `rooms:${"PTSa2"}`);
 
 const server = Bun.serve<{ email: string }>({
+	port: process.env.PORT || 3000,
 	fetch(req, server) {
 		// Add CORS headers
 		if (req.method === "OPTIONS") {
