@@ -1,5 +1,5 @@
 import type { ServerWebSocket, Server } from "bun";
-import { redis } from "./index.ts";
+import { redis } from "./index";
 import {
 	generateId,
 	type GameState,
@@ -7,7 +7,7 @@ import {
 	type Choice,
 	calculateWinner,
 	encode,
-} from "./lib.ts";
+} from "./lib";
 
 type Socket = ServerWebSocket<{
 	email: string;
@@ -158,20 +158,6 @@ export async function saveAndBrodcastResult(
 	}
 }
 
-export async function exchangeData(ws: Socket, roomId: string) {
-	const json = (await redis.call("JSON.GET", `rooms:${roomId}`)) as string;
-	const gameState = JSON.parse(json) as GameState;
-	setTimeout(() => {
-		ws.publish(
-			`lobby:${roomId}`,
-			encode("exchange_data", { player: gameState.players[0] }),
-		);
-	}, 500);
-	setTimeout(() => {
-		ws.publish(`lobby:${roomId}`, encode("prepare_round_one"));
-	}, 2000);
-}
-
 export function createGameRoom(ws: Socket, roomId: string) {
 	ws.unsubscribe(`lobby:${roomId}`);
 	ws.subscribe(`game:${roomId}`);
@@ -185,13 +171,4 @@ export async function destroyRoom(ws: Socket, roomId: string) {
 	ws.unsubscribe(`game:${roomId}`);
 	await redis.expire(`rooms:${roomId}`, -1);
 	// await redis.call("JSON.DEL", `rooms:${roomId}`);
-}
-
-export async function setGameState(roomId: string, newGameState: GameState) {
-	await redis.call(
-		"JSON.SET",
-		`rooms:${roomId}`,
-		"$",
-		JSON.stringify(newGameState),
-	);
 }
