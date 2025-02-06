@@ -47,13 +47,12 @@ const server = Bun.serve<{ email: string }>({
 		open(ws) {
 			const msg = `${ws.data.email} has entered the chat`;
 			console.log(msg);
-
 			// ws.subscribe("the-group-chat");
 			// server.publish("the-group-chat", msg);
 		},
 		message(ws, message) {
 			const data = JSON.parse(message as string);
-			console.log(data);
+			// console.log(data);
 
 			switch (data.type) {
 				case "create_room":
@@ -94,11 +93,11 @@ const server = Bun.serve<{ email: string }>({
 		},
 		async close(ws) {
 			const msg = `${ws.data.email} has left the chat`;
-			console.log(msg);
-			const roomId = await redis.get(`joined:${ws.data.email}`);
+			// console.log(msg);
+			// const roomId = await redis.get(`joined:${ws.data.email}`);
 
 			// server.publish("the-group-chat", msg);
-			if (roomId) ws.unsubscribe(roomId);
+			// if (roomId) ws.unsubscribe(roomId);
 		},
 	},
 });
