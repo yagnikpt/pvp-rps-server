@@ -20,9 +20,10 @@ const server = Bun.serve<{ email: string }>({
 		if (req.method === "OPTIONS") {
 			return new Response(null, {
 				headers: {
-					"Access-Control-Allow-Origin": "*",
+					"Access-Control-Allow-Origin": "pvp-rps.vercel.app",
 					"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 					"Access-Control-Allow-Headers": "Content-Type, Authorization",
+					"Access-Control-Allow-Credntials": "true",
 				},
 			});
 		}
@@ -32,7 +33,8 @@ const server = Bun.serve<{ email: string }>({
 		const success = server.upgrade(req, {
 			data: { email },
 			headers: {
-				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Origin": "pvp-rps.vercel.app",
+				"Access-Control-Allow-Credentials": "true",
 			},
 		});
 		if (success) return undefined;
