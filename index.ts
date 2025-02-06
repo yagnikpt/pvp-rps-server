@@ -28,12 +28,12 @@ const server = Bun.serve<{ email: string }>({
 		});
 	},
 	websocket: {
-		open(ws) {
-			const msg = `${ws.remoteAddress} has entered the chat`;
-			console.log(msg);
-			// ws.subscribe("the-group-chat");
-			// server.publish("the-group-chat", msg);
-		},
+		// open(ws) {
+		// 	const msg = `${ws.remoteAddress} has entered the chat`;
+		// 	console.log(msg);
+		// 	// ws.subscribe("the-group-chat");
+		// 	// server.publish("the-group-chat", msg);
+		// },
 		message(ws, message) {
 			const data = JSON.parse(message as string);
 			// console.log(data);
@@ -71,13 +71,16 @@ const server = Bun.serve<{ email: string }>({
 					break;
 			}
 		},
-		// async close(ws) {
-		// 	const msg = `${ws.data.email} has left the chat`;
-		// 	console.log(msg);
-		// 	const roomId = await redis.get(`joined:${ws.data.email}`);
+		async close(ws) {
+			const json = await redis.call("JSON.GET", `joined:${ws.data.email}`);
+			const rooms: string[] = json ? JSON.parse(json as string) : [];
 
-		// 	server.publish("the-group-chat", msg);
-		// 	if (roomId) ws.unsubscribe(roomId);
-		// },
+			const lastRoom = rooms.pop();
+			if (!lastRoom) return;
+			destroyRoom(ws, lastRoom);
+			redis.expire(`joined:${ws.data.email}`, -1);
+		},
 	},
 });
+
+console.log(`Listening on ${server.hostname}:${server.port}`);

@@ -35,6 +35,16 @@ export async function createLobby(
 		)
 		.expire(`rooms:${roomId}`, 60 * 30)
 		.exec();
+
+	const json = await redis.call("JSON.GET", `joined:${ws.data.email}`);
+	const rooms = json ? JSON.parse(json as string) : [];
+	redis.call(
+		"JSON.SET",
+		`joined:${ws.data.email}`,
+		"$",
+		JSON.stringify([...rooms, roomId]),
+	);
+
 	ws.send(
 		encode("get_room_data", {
 			data: {
@@ -82,6 +92,14 @@ export async function playerJoin(ws: Socket, roomCode: string, data: Player) {
 		ws.publish(
 			`lobby:${roomCode}`,
 			encode("prepare_round_one", { game: room }),
+		);
+		const json = await redis.call("JSON.GET", `joined:${ws.data.email}`);
+		const rooms = json ? JSON.parse(json as string) : [];
+		redis.call(
+			"JSON.SET",
+			`joined:${ws.data.email}`,
+			"$",
+			JSON.stringify([...rooms, roomCode]),
 		);
 	} else {
 		ws.send(encode("room_not_found"));
